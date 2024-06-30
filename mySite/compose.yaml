@@ -1,0 +1,32 @@
+services:
+
+    php:
+      build: /docker/php/.
+      volumes:
+        - ./docker/php/web.ini:/usr/local/etc/php/conf.d/web.ini:ro
+        - ./src/:/web
+      depends_on:
+        - mysql
+
+    nginx:
+      image: nginx
+      ports:
+        - 8080:80
+      volumes:
+        - ./docker/nginx/web.conf:/etc/nginx/conf.d/default.conf:ro
+        - ./src/public:/web:ro
+      depends_on:
+        - php
+
+    mysql:
+      image: mysql:latest
+      container_name: mysql
+      environment:
+        MYSQL_DATABASE: scheduledb1
+        MYSQL_USER: user
+        MYSQL_PASSWORD: password
+        MYSQL_RANDOM_ROOT_PASSWORD: true
+      volumes:
+      #  - ./docker/mysql/web.cfg:/etc/mysql/conf.d/web.cfg:ro
+      #  - ./docker/mysql/data:/var/lib/mysql
+        - ./docker/mysql/dump/init.sql:/docker-entrypoint-initdb.d/init.sql
